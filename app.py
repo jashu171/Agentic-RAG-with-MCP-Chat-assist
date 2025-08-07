@@ -5,6 +5,10 @@ This application implements a complete RAG system using MCP for agent communicat
 It provides a Flask web API for document upload and query processing.
 """
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import os
@@ -265,9 +269,23 @@ def query():
         search_k = data.get("search_k", config.agent.default_search_k)
         search_k = max(1, min(search_k, 20))  # Limit between 1-20
 
-        # Process query through the complete pipeline
+        # Process query through the MCP workflow
         start_time = time.time()
 
+        # Use the MCP workflow for query processing
+        query_msg = coordinator.send_message(
+            receiver=coordinator.agent_id,
+            msg_type=MessageType.QUERY_REQUEST.value,
+            payload={
+                "query": query_text,
+                "search_k": search_k,
+                "similarity_threshold": config.agent.similarity_threshold,
+            },
+        )
+
+        # For now, fall back to direct method calls since the workflow is async
+        # In a production system, you'd want to implement proper async handling
+        
         # Step 1: Get context from retrieval agent
         retrieval_result = coordinator.retrieval_agent.retrieve_context(
             query=query_text,
@@ -313,6 +331,7 @@ def query():
                 "response_type": llm_result.get("response_type", "unknown"),
                 "collection_size": retrieval_result.get("collection_size", 0),
                 "processing_time": round(processing_time, 2),
+                "trace_id": query_msg.trace_id,
                 "metadata": {
                     "query_length": len(query_text),
                     "search_k": search_k,

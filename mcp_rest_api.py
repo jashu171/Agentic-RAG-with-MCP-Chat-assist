@@ -207,4 +207,4 @@ def register_agent_handler(agent_id: str, msg_type: str, handler_function):
 
 if __name__ == "__main__":
     logger.info("Starting MCP REST API server on port 8001")
-    app.run(debug=True, port=8001, host='0.0.0.0')
+    app.run(debug=True, port=8009, host='0.0.0.0')

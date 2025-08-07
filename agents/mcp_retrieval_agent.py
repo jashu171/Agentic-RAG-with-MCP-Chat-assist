@@ -61,9 +61,7 @@ class MCPRetrievalAgent(MCPAgent):
                 self.send_message(
                     receiver="CoordinatorAgent",
                     msg_type=MessageType.ERROR.value,
-                    payload={"error": f"Cannot index documents due to upstream error: {message.error}"},
-                    workflow_id=message.workflow_id,
-                    parent_trace_id=message.trace_id
+                    payload={"error": f"Cannot index documents due to upstream error: {message.error}"}
                 )
                 return
             
@@ -77,9 +75,7 @@ class MCPRetrievalAgent(MCPAgent):
                 self.send_message(
                     receiver="CoordinatorAgent",
                     msg_type=MessageType.ERROR.value,
-                    payload={"error": error_msg},
-                    workflow_id=message.workflow_id,
-                    parent_trace_id=message.trace_id
+                    payload={"error": error_msg}
                 )
                 return
             
@@ -111,10 +107,8 @@ class MCPRetrievalAgent(MCPAgent):
                     "indexing_stats": self.stats.copy()
                 },
                 metadata={
-                    "processing_time_seconds": message.get_age_seconds()
-                },
-                workflow_id=message.workflow_id,
-                parent_trace_id=message.trace_id
+                    "processing_time_seconds": getattr(message, 'get_age_seconds', lambda: 0)()
+                }
             )
             
         except Exception as e:
@@ -147,9 +141,7 @@ class MCPRetrievalAgent(MCPAgent):
                 self.send_message(
                     receiver="LLMResponseAgent",
                     msg_type=MessageType.ERROR.value,
-                    payload={"error": error_msg, "query": query},
-                    workflow_id=message.workflow_id,
-                    parent_trace_id=message.trace_id
+                    payload={"error": error_msg, "query": query}
                 )
                 return
             
@@ -185,9 +177,7 @@ class MCPRetrievalAgent(MCPAgent):
                     "search_k": k,
                     "similarity_threshold": similarity_threshold,
                     "query_length": len(query)
-                },
-                workflow_id=message.workflow_id,
-                parent_trace_id=message.trace_id
+                }
             )
             
         except Exception as e:
@@ -197,9 +187,7 @@ class MCPRetrievalAgent(MCPAgent):
             self.send_message(
                 receiver="LLMResponseAgent",
                 msg_type=MessageType.ERROR.value,
-                payload={"error": error_msg, "query": query},
-                workflow_id=message.workflow_id,
-                parent_trace_id=message.trace_id
+                payload={"error": error_msg, "query": query}
             )
     
     def add_documents(self, chunks: List[str], metadata: Dict[str, Any]) -> Dict[str, Any]:

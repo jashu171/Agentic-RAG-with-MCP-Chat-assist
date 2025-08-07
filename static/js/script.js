@@ -6,7 +6,27 @@ let chatHistory = [];
 document.addEventListener('DOMContentLoaded', function () {
     initializeEventListeners();
     setupFileUpload();
+    checkMemoryStatus();
 });
+
+function checkMemoryStatus() {
+    // Check if there are documents in memory by calling health endpoint
+    fetch('/health')
+        .then(response => response.json())
+        .then(data => {
+            // Check if system has documents (you might need to adjust this based on your health endpoint response)
+            const hasDocuments = data.system_health && 
+                                data.system_health.coordinator && 
+                                data.system_health.coordinator.stats && 
+                                data.system_health.coordinator.stats.documents_processed > 0;
+            updateMemoryStatus(hasDocuments);
+        })
+        .catch(error => {
+            console.log('Could not check memory status:', error);
+            // Default to empty state
+            updateMemoryStatus(false);
+        });
+}
 
 function initializeEventListeners() {
     // Welcome screen message input event listeners
@@ -188,7 +208,13 @@ function addMessage(text, sender) {
 
     const textDiv = document.createElement('div');
     textDiv.className = 'message-text';
-    textDiv.textContent = text;
+    
+    // Convert markdown to HTML for better display (simple conversion)
+    if (sender === 'assistant') {
+        textDiv.innerHTML = convertMarkdownToHTML(text);
+    } else {
+        textDiv.textContent = text;
+    }
 
     contentDiv.appendChild(textDiv);
     messageDiv.appendChild(avatarDiv);
@@ -203,6 +229,50 @@ function addMessage(text, sender) {
             behavior: 'smooth'
         });
     }, 100);
+}
+
+function convertMarkdownToHTML(markdown) {
+    let html = markdown;
+    
+    // Convert headers
+    html = html.replace(/^## (.*$)/gm, '<h2>$1</h2>');
+    html = html.replace(/^### (.*$)/gm, '<h3>$1</h3>');
+    
+    // Convert bold text
+    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    
+    // Convert bullet points
+    html = html.replace(/^• (.*$)/gm, '<li>$1</li>');
+    
+    // Wrap consecutive list items in ul tags
+    html = html.replace(/(<li>.*<\/li>)/gs, function(match) {
+        return '<ul>' + match + '</ul>';
+    });
+    
+    // Convert tables (basic support)
+    html = html.replace(/\|(.+)\|/g, function(match, content) {
+        const cells = content.split('|').map(cell => cell.trim());
+        const cellTags = cells.map(cell => `<td>${cell}</td>`).join('');
+        return `<tr>${cellTags}</tr>`;
+    });
+    
+    // Wrap table rows in table tags
+    html = html.replace(/(<tr>.*<\/tr>)/gs, function(match) {
+        return '<table class="response-table">' + match + '</table>';
+    });
+    
+    // Convert line breaks
+    html = html.replace(/\n/g, '<br>');
+    
+    // Clean up extra br tags around headers and lists
+    html = html.replace(/<br><h([1-6])>/g, '<h$1>');
+    html = html.replace(/<\/h([1-6])><br>/g, '</h$1>');
+    html = html.replace(/<br><ul>/g, '<ul>');
+    html = html.replace(/<\/ul><br>/g, '</ul>');
+    html = html.replace(/<br><table/g, '<table');
+    html = html.replace(/<\/table><br>/g, '</table>');
+    
+    return html;
 }
 
 function addSourceInfo(sourceText) {
@@ -313,6 +383,9 @@ function handleFileUpload() {
                     </ul>
                 </div>
             `);
+                
+                // Update memory status to show documents are loaded
+                updateMemoryStatus(true);
             }
         })
         .catch(error => {
@@ -391,4 +464,165 @@ function toggleConnectStore() {
 
 function exploreUsecases() {
     console.log('Explore usecases functionality to be implemented');
+}
+
+function clearMemory() {
+    // Show confirmation dialog
+    if (!confirm('Are you sure you want to clear all stored documents and memory? This action cannot be undone.')) {
+        return;
+    }
+
+    // Show loading state
+    const clearButtons = document.querySelectorAll('.clear-memory-btn, .header-clear-btn');
+    clearButtons.forEach(btn => {
+        btn.disabled = true;
+        btn.style.opacity = '0.5';
+        btn.innerHTML = `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2"/>
+            </svg>
+        `;
+    });
+
+    // Call the clear endpoint
+    fetch('/clear', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert('Error clearing memory: ' + data.error);
+        } else {
+            // Show success message
+            addMessage('✅ Memory cleared successfully! All stored documents have been removed from the database.', 'assistant');
+            
+            // Clear chat history
+            chatHistory = [];
+            
+            // Update memory status indicator
+            updateMemoryStatus(false);
+            
+            // Show success notification
+            showClearSuccessNotification();
+        }
+    })
+    .catch(error => {
+        console.error('Error clearing memory:', error);
+        alert('Network error occurred while clearing memory. Please try again.');
+    })
+    .finally(() => {
+        // Reset button state
+        clearButtons.forEach(btn => {
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            btn.innerHTML = `
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 6h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="10" y1="11" x2="10" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="14" y1="11" x2="14" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            `;
+        });
+    });
+}
+
+function showClearSuccessNotification() {
+    // Create and show a temporary success notification
+    const notification = document.createElement('div');
+    notification.className = 'clear-success-notification';
+    notification.innerHTML = `
+        <div class="notification-content">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 12l2 2 4-4" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="12" cy="12" r="10" stroke="#10b981" stroke-width="2"/>
+            </svg>
+            <span>Memory cleared successfully!</span>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Add CSS for notification if not already added
+    if (!document.getElementById('clearNotificationCSS')) {
+        const style = document.createElement('style');
+        style.id = 'clearNotificationCSS';
+        style.textContent = `
+            .clear-success-notification {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: white;
+                border: 1px solid #10b981;
+                border-radius: 8px;
+                padding: 12px 16px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                z-index: 1000;
+                animation: slideInRight 0.3s ease-out;
+            }
+            
+            .notification-content {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                color: #10b981;
+                font-weight: 500;
+            }
+            
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    // Remove notification after 3 seconds
+    setTimeout(() => {
+        notification.style.animation = 'slideInRight 0.3s ease-out reverse';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }, 3000);
+}
+
+function updateMemoryStatus(hasDocuments) {
+    const memoryStatus = document.getElementById('memoryStatus');
+    if (!memoryStatus) return;
+    
+    if (hasDocuments) {
+        memoryStatus.classList.remove('empty');
+        memoryStatus.innerHTML = `
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <span>Memory Active</span>
+        `;
+        memoryStatus.title = "Documents are stored in memory";
+    } else {
+        memoryStatus.classList.add('empty');
+        memoryStatus.innerHTML = `
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" stroke-width="2"/>
+                <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            <span>Memory Empty</span>
+        `;
+        memoryStatus.title = "No documents stored in memory";
+    }
 }

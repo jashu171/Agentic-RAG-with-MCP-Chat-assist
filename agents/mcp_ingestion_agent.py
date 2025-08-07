@@ -148,10 +148,10 @@ class MCPIngestionAgent(MCPAgent):
                 metadata={
                     "file_name": os.path.basename(file_path),
                     "file_extension": file_ext,
-                    "file_size_mb": round(file_size / (1024 * 1024), 2)
-                },
-                workflow_id=message.workflow_id,
-                parent_trace_id=message.trace_id
+                    "file_size_mb": round(file_size / (1024 * 1024), 2),
+                    "workflow_id": getattr(message, 'workflow_id', None),
+                    "parent_trace_id": message.trace_id
+                }
             )
             
         except Exception as e:

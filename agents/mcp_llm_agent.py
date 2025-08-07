@@ -54,185 +54,174 @@ class MCPLLMAgent(MCPAgent):
             }
         )
 
-        # Response templates
+        # Modern Response templates with structured format
         self.templates = {
-            "rag_prompt": """## 📄 Answer Based on Uploaded Files
+            "rag_prompt": """You are an AI assistant that provides well-structured, modern responses based on uploaded documents. 
 
-Your question has been answered using the following uploaded resources:
-
-###  Context Extracted:
+CONTEXT FROM UPLOADED FILES:
 {context}
 
-###  Sources Used:
-{sources}
+SOURCES: {sources}
 
----
+USER QUERY: {query}
 
-## Answer to Your Query:  
-{query}
+RESPONSE FORMAT REQUIREMENTS:
+1. Start with a brief definition/summary (2-3 sentences max)
+2. Provide key important context from the documents
+3. Use bullet points for lists and key information
+4. Create tables when data is structured (use markdown table format)
+5. Use clear headings and sections
+6. Keep paragraphs short and readable
 
-### ✅ Formatting Rules:
-- Use `##`, `###` for section headings
-- Use `-`, `*`, or `1.` for lists and points
-- Highlight keywords using `**bold**`
-- Use backticks (`code`) for technical terms
-- Break long paragraphs into shorter, digestible sections
-- Add a sources/reference section if applicable
+STRUCTURE YOUR RESPONSE EXACTLY LIKE THIS:
 
----
+## 📋 Quick Answer
+[Brief 1-2 sentence definition/summary of what the query is asking]
 
-###  Note:
-If you’re expecting an answer from a specific file but don’t see it listed above, please ensure the file was uploaded correctly or that it contains content relevant to your question.
-""",
-            "general_prompt": """## 🤖 General AI Response (No Uploaded Files Used)
+## 🔍 Key Context
+[2-3 sentences of the most important context from the uploaded documents]
 
-Your query was answered using general knowledge, as no specific uploaded file content matched your request.
+## 📊 Main Points
+• [Key point 1]
+• [Key point 2] 
+• [Key point 3]
 
-###  Question:
-{query}
+## 📈 Data/Details
+[If there's numerical data, create a table using markdown format:
+| Column 1 | Column 2 | Column 3 |
+|----------|----------|----------|
+| Data 1   | Data 2   | Data 3   |
 
----
+If no tabular data, use bullet points for details]
 
-##  Response:
+## 💡 Summary
+[Brief conclusion or key takeaway]
 
-###  Formatting Rules:
-- Use `##`, `###` for section headings
-- Use `-`, `*`, or `1.` for lists and points
-- Highlight keywords using `**bold**`
-- Use backticks (`code`) for technical terms
-- Break long paragraphs into shorter, digestible sections
-- Add a sources/reference section if applicable
+Remember: Keep it concise, well-structured, and easy to scan. Use emojis sparingly for section headers only.""",
 
----
+            "general_prompt": """You are an AI assistant providing general knowledge responses.
 
-###  Tip for Better Answers:
-Upload relevant files to get more accurate, document-specific responses. This allows me to reference exact sections and improve answer relevance.
-""",
-            "error_response": """## ❌ Error While Processing
+USER QUERY: {query}
+
+RESPONSE FORMAT REQUIREMENTS:
+1. Start with a brief definition/summary (2-3 sentences max)
+2. Provide key important context
+3. Use bullet points for lists and key information
+4. Create tables when data is structured
+5. Use clear headings and sections
+6. Keep paragraphs short and readable
+
+STRUCTURE YOUR RESPONSE EXACTLY LIKE THIS:
+
+## 📋 Quick Answer
+[Brief 1-2 sentence definition/summary]
+
+## 🔍 Key Context
+[2-3 sentences of important background information]
+
+## 📊 Main Points
+• [Key point 1]
+• [Key point 2] 
+• [Key point 3]
+
+## 📈 Additional Details
+[More detailed information, use tables if applicable]
+
+## 💡 Summary
+[Brief conclusion or key takeaway]
+
+Note: This response is based on general knowledge. Upload relevant documents for more specific, document-based answers.""",
+
+            "error_response": """## ❌ Error Processing Request
 
 Something went wrong while handling your request.
 
-###  Error Details:
+## 🔍 Error Details
 {error}
 
----
+## 📊 What You Can Try
+• Rephrase your question more clearly
+• Ensure any referenced file is uploaded properly
+• Check if the file contains readable text content
+• Try again in a few moments
 
-###  Try This:
-- Rephrase your question more clearly
-- Ensure any referenced file is uploaded properly
-- Retry in a few moments
+## 💡 Need Help?
+If the problem persists, please contact support or try uploading your documents again.""",
 
-We're here to help—feel free to ask again or reach out for support.
-""",
-            "no_documents_response": """##  No Documents Detected or Referenced
+            "no_documents_response": """## 📋 General Knowledge Response
 
-I couldn’t find any relevant uploaded documents to use for this query.
+I couldn't find any relevant uploaded documents for this query, so I'm providing a general response.
 
----
-
-##  General Guidance:
-
+## 🔍 Response Based on General Knowledge
 {answer}
 
----
+## 📊 To Get Better Results
+• Upload files that directly relate to your question
+• Ensure documents contain readable, extractable content
+• Use keywords or phrases found in your files when asking questions
 
-###  You Can Try:
-1. Uploading files that directly relate to your question
-2. Ensuring documents contain readable, extractable content (e.g., text, not scanned images)
-3. Using keywords or phrases found in your files when asking questions
-
-Upload your files to get more tailored, document-specific answers.
-"""
+## 💡 Tip
+Upload your documents to get more tailored, document-specific answers with exact references and data."""
         }
-
-        # ... [REMAINING CLASS IMPLEMENTATION CONTINUES UNCHANGED]
-
-        # ... [REMAINING CLASS IMPLEMENTATION CONTINUES UNCHANGED]
-
 
         # Register message handlers
         self._register_handlers()
 
         # Register with broker
-        broker.register_agent(
-            self.agent_id,
-            {
-                "type": "llm",
-                "capabilities": [
-                    "response_generation",
-                    "rag_responses",
-                    "general_responses",
-                ],
-                "model": "gemini-2.0-flash",
-            },
-        )
+        broker.register_agent(self.agent_id, {
+            "type": "llm_response",
+            "capabilities": ["response_generation", "context_processing"],
+            "model": "gemini-2.0-flash"
+        })
 
         logger.info("MCP LLM Agent initialized successfully")
 
     def _register_handlers(self):
         """Register message handlers"""
-        self.mcp.register_handler(
-            MessageType.CONTEXT_RESPONSE.value, self.handle_context_response
-        )
-        self.mcp.register_handler(
-            MessageType.RETRIEVAL_RESULT.value, self.handle_retrieval_result
-        )
-
-    def handle_context_response(self, message):
-        """
-        Handle context response from retrieval agent
-
-        Args:
-            message: MCP message with retrieved context
-        """
-        self.handle_retrieval_result(message)  # Same handling logic
+        self.mcp.register_handler(MessageType.RETRIEVAL_RESULT.value, self.handle_retrieval_result)
 
     def handle_retrieval_result(self, message):
         """
-        Handle retrieval results and generate response
+        Handle retrieval result messages
 
         Args:
             message: MCP message with retrieval results
         """
-        start_time = time.time()
-
         try:
             if message.is_error():
                 logger.error(f"Received error from retrieval: {message.error}")
-                # Generate general response instead
-                query = message.payload.get("query", "")
-                if query:
-                    self._generate_general_response(message, query)
-                else:
-                    self.reply_to(
-                        original_msg=message,
-                        msg_type=MessageType.ERROR.value,
-                        payload={"error": f"Retrieval failed: {message.error}"},
-                    )
+                self.reply_to(
+                    original_msg=message,
+                    msg_type=MessageType.ERROR.value,
+                    payload={"error": f"Cannot generate response due to retrieval error: {message.error}"}
+                )
                 return
 
+            # Extract data from message
             chunks = message.payload.get("top_chunks", [])
             chunk_metadata = message.payload.get("chunk_metadata", [])
             query = message.payload.get("query", "")
             collection_size = message.payload.get("collection_size", 0)
 
-            if not query.strip():
-                error_msg = "Empty query provided"
-                logger.warning(error_msg)
+            if not query:
+                error_msg = "No query provided in retrieval result"
+                logger.error(error_msg)
                 self.reply_to(
                     original_msg=message,
                     msg_type=MessageType.ERROR.value,
-                    payload={"error": error_msg},
+                    payload={"error": error_msg}
                 )
                 return
 
+            logger.info(f"Generating response for query: {query[:50]}... with {len(chunks)} chunks")
+
+            start_time = time.time()
+
             # Determine response mode
-            use_rag = chunks and len(chunks) > 0 and collection_size > 0
+            use_rag = chunks and len(chunks) > 0
 
             if use_rag:
-                response_data = self._generate_rag_response(
-                    chunks, chunk_metadata, query
-                )
+                response_data = self._generate_rag_response(chunks, chunk_metadata, query)
                 response_type = "rag"
                 self.stats["rag_responses"] += 1
             else:
@@ -265,9 +254,9 @@ Upload your files to get more tailored, document-specific answers.
                     "model_used": "gemini-2.0-flash",
                     "response_length": len(response_data.get("answer", "")),
                     "sources_used": len(chunks) if chunks else 0,
-                },
-                workflow_id=message.workflow_id,
-                parent_trace_id=message.trace_id,
+                    "workflow_id": getattr(message, 'workflow_id', None),
+                    "parent_trace_id": message.trace_id
+                }
             )
 
         except Exception as e:
@@ -278,7 +267,7 @@ Upload your files to get more tailored, document-specific answers.
             self.reply_to(
                 original_msg=message,
                 msg_type=MessageType.ERROR.value,
-                payload={"error": error_msg},
+                payload={"error": error_msg}
             )
 
     def _generate_rag_response(
@@ -358,7 +347,11 @@ Upload your files to get more tailored, document-specific answers.
                     response.usage_metadata, "total_token_count", 0
                 )
 
-            return {"answer": final_answer, "context_chunks": [], "sources_used": 0}
+            return {
+                "answer": final_answer,
+                "context_chunks": [],
+                "sources_used": 0,
+            }
 
         except Exception as e:
             logger.error(f"Error in general response generation: {str(e)}")
@@ -366,11 +359,44 @@ Upload your files to get more tailored, document-specific answers.
                 "answer": self.templates["error_response"].format(error=str(e)),
                 "context_chunks": [],
                 "sources_used": 0,
-                "error": True,
             }
 
-    def _generate_general_response(self, original_message, query: str):
-        """Generate and send general response"""
+    def _enhance_response_formatting(self, text: str, response_type: str) -> str:
+        """Enhance response formatting with better structure"""
+        # The new templates already provide good structure
+        # Just ensure proper line breaks and formatting
+        enhanced = text.strip()
+        
+        # Ensure proper spacing around headers
+        enhanced = enhanced.replace("##", "\n##")
+        enhanced = enhanced.replace("\n\n##", "\n##")
+        
+        # Clean up extra whitespace
+        lines = enhanced.split('\n')
+        cleaned_lines = []
+        for line in lines:
+            cleaned_lines.append(line.rstrip())
+        
+        return '\n'.join(cleaned_lines)
+
+    def _format_sources_section(self, sources: List[str], total_chunks: int) -> str:
+        """Format sources section"""
+        if not sources:
+            return ""
+
+        sources_section = "\n\n---\n\n## 📚 Sources\n"
+        unique_sources = list(set(sources))
+        
+        for source in unique_sources:
+            sources_section += f"📄 **{source}**\n"
+        
+        if total_chunks > 3:
+            sources_section += f"\n*Note: Showing top 3 of {total_chunks} relevant sections*"
+        
+        return sources_section
+
+    def _send_general_response(self, original_message, query: str):
+        """Send a general response when no context is available"""
         response_data = self._generate_general_response_data(query)
 
         self.send_message(
@@ -383,8 +409,10 @@ Upload your files to get more tailored, document-specific answers.
                 "collection_size": 0,
                 "processing_time_seconds": 0.0,
             },
-            workflow_id=original_message.workflow_id,
-            parent_trace_id=original_message.trace_id,
+            metadata={
+                "workflow_id": getattr(original_message, 'workflow_id', None),
+                "parent_trace_id": original_message.trace_id
+            }
         )
 
         self.stats["general_responses"] += 1
@@ -393,96 +421,8 @@ Upload your files to get more tailored, document-specific answers.
     def _update_average_response_time(self, processing_time: float):
         """Update average response time"""
         if self.stats["responses_generated"] > 0:
-            total_time = self.stats["average_response_time"] * (
-                self.stats["responses_generated"] - 1
-            )
-            self.stats["average_response_time"] = (
-                total_time + processing_time
-            ) / self.stats["responses_generated"]
-
-    def _enhance_response_formatting(
-        self, response_text: str, response_type: str
-    ) -> str:
-        """
-        Enhance response formatting with better structure
-
-        Args:
-            response_text: Raw response text
-            response_type: Type of response (rag/general)
-
-        Returns:
-            Enhanced formatted response
-        """
-        try:
-            # If response already has markdown formatting, return as is
-            if any(
-                marker in response_text
-                for marker in ["##", "###", "**", "- ", "* ", "1. "]
-            ):
-                return response_text
-
-            # Basic enhancement for unformatted responses
-            lines = response_text.strip().split("\n")
-            enhanced_lines = []
-
-            for i, line in enumerate(lines):
-                line = line.strip()
-                if not line:
-                    enhanced_lines.append("")
-                    continue
-
-                # Check if line looks like a heading (short line followed by longer content)
-                if (
-                    len(line) < 60
-                    and i < len(lines) - 1
-                    and lines[i + 1].strip()
-                    and len(lines[i + 1].strip()) > len(line)
-                ):
-                    enhanced_lines.append(f"## {line}")
-                # Check for list-like content
-                elif line.startswith(("•", "-", "*")) or any(
-                    line.startswith(f"{j}.") for j in range(1, 10)
-                ):
-                    enhanced_lines.append(line)
-                # Check for key-value or definition-like content
-                elif ":" in line and len(line.split(":")[0]) < 30:
-                    parts = line.split(":", 1)
-                    enhanced_lines.append(f"**{parts[0].strip()}:** {parts[1].strip()}")
-                else:
-                    enhanced_lines.append(line)
-
-            return "\n".join(enhanced_lines)
-
-        except Exception as e:
-            logger.warning(f"Error enhancing response formatting: {e}")
-            return response_text
-
-    def _format_sources_section(self, sources: List[str], chunks_used: int) -> str:
-        """
-        Format sources section for RAG responses
-
-        Args:
-            sources: List of source document names
-            chunks_used: Number of chunks used
-
-        Returns:
-            Formatted sources section
-        """
-        if not sources:
-            return ""
-
-        sources_section = "\n\n---\n\n## Sources\n\n"
-
-        unique_sources = list(set(sources))
-        if len(unique_sources) == 1:
-            sources_section += f"📄 **{unique_sources[0]}** ({chunks_used} section{'s' if chunks_used > 1 else ''})"
-        else:
-            sources_section += "📄 **Referenced Documents:**\n"
-            for i, source in enumerate(unique_sources, 1):
-                sources_section += f"{i}. {source}\n"
-            sources_section += f"\n*Total sections referenced: {chunks_used}*"
-
-        return sources_section
+            total_time = self.stats["average_response_time"] * (self.stats["responses_generated"] - 1)
+            self.stats["average_response_time"] = (total_time + processing_time) / self.stats["responses_generated"]
 
     def generate_response(
         self,
@@ -546,16 +486,17 @@ Upload your files to get more tailored, document-specific answers.
     def health_check(self) -> Dict[str, Any]:
         """Get agent health status"""
         try:
-            # Test API connectivity
-            test_response = self.model.generate_content("Hello")
+            # Test Gemini API connection
+            test_response = self.model.generate_content("Test connection")
             api_status = "healthy" if test_response else "degraded"
         except Exception as e:
-            api_status = f"error: {str(e)}"
+            logger.warning(f"Gemini API health check failed: {str(e)}")
+            api_status = "degraded"
 
         return {
-            "status": api_status,
+            "status": "healthy" if api_status == "healthy" else "degraded",
             "agent_id": self.agent_id,
             "stats": self.get_stats(),
-            "model": "gemini-2.0-flash",
-            "api_key_configured": bool(self.api_key),
+            "api_status": api_status,
+            "model": "gemini-2.0-flash"
         }

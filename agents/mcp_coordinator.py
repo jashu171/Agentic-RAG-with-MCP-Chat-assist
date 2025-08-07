@@ -96,7 +96,7 @@ class MCPCoordinatorAgent(MCPAgent):
         try:
             file_path = message.payload.get("file_path")
             if not file_path:
-                self.send_error(message.sender, "No file_path provided in ingestion request")
+                self.mcp.send_error(message.sender, "No file_path provided in ingestion request")
                 return
             
             # Start workflow
@@ -116,7 +116,7 @@ class MCPCoordinatorAgent(MCPAgent):
             logger.info(f"Starting document processing workflow: {workflow_id} for {file_path}")
             
             # Send workflow start notification
-            self.send_message(
+            self.mcp.send(
                 receiver="*",
                 msg_type=MessageType.WORKFLOW_START.value,
                 payload={
@@ -124,16 +124,15 @@ class MCPCoordinatorAgent(MCPAgent):
                     "workflow_type": "document_processing",
                     "file_path": file_path
                 },
-                workflow_id=workflow_id
+                trace_id=workflow_id
             )
             
             # Forward to ingestion agent
-            self.send_message(
+            self.mcp.send(
                 receiver="IngestionAgent",
                 msg_type=MessageType.INGESTION_REQUEST.value,
                 payload=message.payload,
-                workflow_id=workflow_id,
-                parent_trace_id=message.trace_id
+                trace_id=workflow_id
             )
             
             self.stats["workflows_started"] += 1
@@ -141,7 +140,7 @@ class MCPCoordinatorAgent(MCPAgent):
         except Exception as e:
             error_msg = f"Error handling ingestion request: {str(e)}"
             logger.error(error_msg, exc_info=True)
-            self.send_error(message.sender, error_msg)
+            self.mcp.send_error(message.sender, error_msg)
     
     def handle_query_request(self, message):
         """
@@ -157,7 +156,7 @@ class MCPCoordinatorAgent(MCPAgent):
         try:
             query = message.payload.get("query")
             if not query:
-                self.send_error(message.sender, "No query provided in request")
+                self.mcp.send_error(message.sender, "No query provided in request")
                 return
             
             # Start workflow
@@ -177,7 +176,7 @@ class MCPCoordinatorAgent(MCPAgent):
             logger.info(f"Starting query processing workflow: {workflow_id} for query: {query[:50]}...")
             
             # Send workflow start notification
-            self.send_message(
+            self.mcp.send(
                 receiver="*",
                 msg_type=MessageType.WORKFLOW_START.value,
                 payload={
@@ -185,16 +184,15 @@ class MCPCoordinatorAgent(MCPAgent):
                     "workflow_type": "query_processing",
                     "query": query
                 },
-                workflow_id=workflow_id
+                trace_id=workflow_id
             )
             
             # Forward to retrieval agent
-            self.send_message(
+            self.mcp.send(
                 receiver="RetrievalAgent",
                 msg_type=MessageType.QUERY_REQUEST.value,
                 payload=message.payload,
-                workflow_id=workflow_id,
-                parent_trace_id=message.trace_id
+                trace_id=workflow_id
             )
             
             self.stats["workflows_started"] += 1
@@ -202,7 +200,7 @@ class MCPCoordinatorAgent(MCPAgent):
         except Exception as e:
             error_msg = f"Error handling query request: {str(e)}"
             logger.error(error_msg, exc_info=True)
-            self.send_error(message.sender, error_msg)
+            self.mcp.send_error(message.sender, error_msg)
     
     def handle_documents_indexed(self, message):
         """Handle documents indexed response from retrieval agent"""
@@ -221,7 +219,7 @@ class MCPCoordinatorAgent(MCPAgent):
                 workflow["completed_at"] = time.time()
                 
                 # Send error to original sender
-                self.send_error(
+                self.mcp.send_error(
                     receiver=workflow["original_sender"],
                     error_msg=f"Document processing failed: {message.error}"
                 )
@@ -243,7 +241,7 @@ class MCPCoordinatorAgent(MCPAgent):
             logger.info(f"Document processing workflow completed: {workflow_id} in {processing_time:.2f}s")
             
             # Send success response to original sender
-            self.send_message(
+            self.mcp.send(
                 receiver=workflow["original_sender"],
                 msg_type=MessageType.DOCUMENTS_INDEXED.value,
                 payload={
@@ -255,7 +253,7 @@ class MCPCoordinatorAgent(MCPAgent):
             )
             
             # Send workflow completion notification
-            self.send_message(
+            self.mcp.send(
                 receiver="*",
                 msg_type=MessageType.WORKFLOW_COMPLETE.value,
                 payload={
@@ -264,7 +262,7 @@ class MCPCoordinatorAgent(MCPAgent):
                     "status": "completed",
                     "processing_time": processing_time
                 },
-                workflow_id=workflow_id
+                trace_id=workflow_id
             )
             
             # Clean up workflow
@@ -291,7 +289,7 @@ class MCPCoordinatorAgent(MCPAgent):
                 workflow["completed_at"] = time.time()
                 
                 # Send error to original sender
-                self.send_error(
+                self.mcp.send_error(
                     receiver=workflow["original_sender"],
                     error_msg=f"Query processing failed: {message.error}"
                 )
@@ -314,7 +312,7 @@ class MCPCoordinatorAgent(MCPAgent):
             logger.info(f"Query processing workflow completed: {workflow_id} in {processing_time:.2f}s")
             
             # Send response to original sender
-            self.send_message(
+            self.mcp.send(
                 receiver=workflow["original_sender"],
                 msg_type=MessageType.RESPONSE_GENERATED.value,
                 payload={
@@ -326,7 +324,7 @@ class MCPCoordinatorAgent(MCPAgent):
             )
             
             # Send workflow completion notification
-            self.send_message(
+            self.mcp.send(
                 receiver="*",
                 msg_type=MessageType.WORKFLOW_COMPLETE.value,
                 payload={
@@ -335,7 +333,7 @@ class MCPCoordinatorAgent(MCPAgent):
                     "status": "completed",
                     "processing_time": processing_time
                 },
-                workflow_id=workflow_id
+                trace_id=workflow_id
             )
             
             # Clean up workflow
@@ -383,7 +381,7 @@ class MCPCoordinatorAgent(MCPAgent):
         except Exception as e:
             error_msg = f"Error getting system status: {str(e)}"
             logger.error(error_msg, exc_info=True)
-            self.send_error(message.sender, error_msg)
+            self.mcp.send_error(message.sender, error_msg)
     
     def _update_average_response_time(self):
         """Update average response time"""

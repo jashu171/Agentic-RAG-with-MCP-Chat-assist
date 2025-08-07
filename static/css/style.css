@@ -52,6 +52,56 @@ body {
 .header-right {
     display: flex;
     align-items: center;
+    gap: 16px;
+}
+
+.memory-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+    background-color: #f0f9ff;
+    color: #0369a1;
+    border: 1px solid #e0f2fe;
+}
+
+.memory-status.empty {
+    background-color: #fef2f2;
+    color: #dc2626;
+    border-color: #fecaca;
+}
+
+.memory-status svg {
+    width: 14px;
+    height: 14px;
+}
+
+.header-clear-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    color: #ef4444;
+}
+
+.header-clear-btn:hover {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+}
+
+.header-clear-btn:disabled {
+    color: #fca5a5;
+    cursor: not-allowed;
+    opacity: 0.5;
 }
 
 .user-count {
@@ -242,6 +292,60 @@ body {
     font-style: italic;
 }
 
+/* Structured response styles */
+.message-text h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 16px 0 8px 0;
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 4px;
+}
+
+.message-text h3 {
+    font-size: 16px;
+    font-weight: 500;
+    color: #374151;
+    margin: 12px 0 6px 0;
+}
+
+.message-text ul {
+    margin: 8px 0;
+    padding-left: 20px;
+}
+
+.message-text li {
+    margin: 4px 0;
+    line-height: 1.5;
+}
+
+.message-text .response-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 14px;
+}
+
+.message-text .response-table td {
+    border: 1px solid #e5e7eb;
+    padding: 8px 12px;
+    text-align: left;
+}
+
+.message-text .response-table tr:first-child td {
+    background-color: #f9fafb;
+    font-weight: 500;
+}
+
+.message-text .response-table tr:nth-child(even) {
+    background-color: #f9fafb;
+}
+
+.message-text strong {
+    font-weight: 600;
+    color: #1f2937;
+}
+
 /* Input Container */
 .input-container {
     padding: 0;
@@ -326,6 +430,22 @@ body {
 .send-btn:disabled {
     color: #d1d5db;
     cursor: not-allowed;
+}
+
+.clear-memory-btn {
+    color: #ef4444;
+    transition: all 0.2s;
+}
+
+.clear-memory-btn:hover {
+    color: #dc2626;
+    background-color: rgba(239, 68, 68, 0.1);
+}
+
+.clear-memory-btn:disabled {
+    color: #fca5a5;
+    cursor: not-allowed;
+    opacity: 0.5;
 }
 
 .connect-store-btn {
