@@ -2000,3 +2000,82 @@ chromadb.errors.NotFoundError: Collection [bc4235b5-31eb-43ea-9260-83765ffd9039]
 2025-08-07 12:49:40,261 - utils.vector_store - INFO - Found 1 results for query: overview of csv file?...
 2025-08-07 12:49:40,261 - agents.mcp_retrieval_agent - INFO - Retrieved 1 chunks for query: overview of csv file?...
 2025-08-07 12:49:45,466 - werkzeug - INFO - 127.0.0.1 - - [07/Aug/2025 12:49:45] "POST /query HTTP/1.1" 200 -
+2025-08-07 13:07:41,370 - utils.mcp_client - INFO - Initialized MCP client for CoordinatorAgent (REST API: disabled)
+2025-08-07 13:07:41,371 - utils.mcp_client - INFO - Initialized MCP agent: CoordinatorAgent
+2025-08-07 13:07:41,371 - utils.mcp_client - INFO - Initialized MCP client for IngestionAgent (REST API: disabled)
+2025-08-07 13:07:41,371 - utils.mcp_client - INFO - Initialized MCP agent: IngestionAgent
+2025-08-07 13:07:41,371 - utils.mcp - INFO - Registered agent: IngestionAgent
+2025-08-07 13:07:41,371 - agents.mcp_ingestion_agent - INFO - MCP Ingestion Agent initialized successfully
+2025-08-07 13:07:41,371 - utils.mcp_client - INFO - Initialized MCP client for RetrievalAgent (REST API: disabled)
+2025-08-07 13:07:41,371 - utils.mcp_client - INFO - Initialized MCP agent: RetrievalAgent
+2025-08-07 13:07:41,386 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-08-07 13:07:45,184 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-08-07 13:07:50,254 - utils.vector_store - INFO - VectorStore initialized with 1 existing documents
+2025-08-07 13:07:50,256 - agents.mcp_retrieval_agent - INFO - MCP Retrieval Agent initialized successfully
+2025-08-07 13:07:50,256 - utils.mcp_client - INFO - Initialized MCP client for LLMResponseAgent (REST API: disabled)
+2025-08-07 13:07:50,256 - utils.mcp_client - INFO - Initialized MCP agent: LLMResponseAgent
+2025-08-07 13:07:50,256 - utils.mcp - INFO - Registered agent: LLMResponseAgent
+2025-08-07 13:07:50,256 - agents.mcp_llm_agent - INFO - MCP LLM Agent initialized successfully
+2025-08-07 13:07:50,256 - utils.mcp - INFO - Registered agent: CoordinatorAgent
+2025-08-07 13:07:50,256 - agents.mcp_coordinator - INFO - MCP Coordinator Agent initialized successfully
+2025-08-07 13:07:50,256 - __main__ - INFO - MCP Agentic RAG system initialized successfully
+2025-08-07 13:07:50,257 - __main__ - INFO - Starting MCP Agentic RAG server on 0.0.0.0:8009
+2025-08-07 13:07:50,282 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8009
+ * Running on http://192.168.67.129:8009
+2025-08-07 13:07:50,283 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-08-07 13:07:50,283 - werkzeug - INFO -  * Restarting with stat
+2025-08-07 13:07:51,308 - utils.mcp_client - INFO - Initialized MCP client for CoordinatorAgent (REST API: disabled)
+2025-08-07 13:07:51,308 - utils.mcp_client - INFO - Initialized MCP agent: CoordinatorAgent
+2025-08-07 13:07:51,308 - utils.mcp_client - INFO - Initialized MCP client for IngestionAgent (REST API: disabled)
+2025-08-07 13:07:51,308 - utils.mcp_client - INFO - Initialized MCP agent: IngestionAgent
+2025-08-07 13:07:51,308 - utils.mcp - INFO - Registered agent: IngestionAgent
+2025-08-07 13:07:51,308 - agents.mcp_ingestion_agent - INFO - MCP Ingestion Agent initialized successfully
+2025-08-07 13:07:51,308 - utils.mcp_client - INFO - Initialized MCP client for RetrievalAgent (REST API: disabled)
+2025-08-07 13:07:51,308 - utils.mcp_client - INFO - Initialized MCP agent: RetrievalAgent
+2025-08-07 13:07:51,320 - chromadb.telemetry.product.posthog - INFO - Anonymized telemetry enabled. See                     https://docs.trychroma.com/telemetry for more information.
+2025-08-07 13:07:54,239 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-08-07 13:07:59,767 - utils.vector_store - INFO - VectorStore initialized with 1 existing documents
+2025-08-07 13:07:59,768 - agents.mcp_retrieval_agent - INFO - MCP Retrieval Agent initialized successfully
+2025-08-07 13:07:59,768 - utils.mcp_client - INFO - Initialized MCP client for LLMResponseAgent (REST API: disabled)
+2025-08-07 13:07:59,768 - utils.mcp_client - INFO - Initialized MCP agent: LLMResponseAgent
+2025-08-07 13:07:59,768 - utils.mcp - INFO - Registered agent: LLMResponseAgent
+2025-08-07 13:07:59,768 - agents.mcp_llm_agent - INFO - MCP LLM Agent initialized successfully
+2025-08-07 13:07:59,768 - utils.mcp - INFO - Registered agent: CoordinatorAgent
+2025-08-07 13:07:59,768 - agents.mcp_coordinator - INFO - MCP Coordinator Agent initialized successfully
+2025-08-07 13:07:59,768 - __main__ - INFO - MCP Agentic RAG system initialized successfully
+2025-08-07 13:07:59,770 - __main__ - INFO - Starting MCP Agentic RAG server on 0.0.0.0:8009
+2025-08-07 13:07:59,800 - werkzeug - WARNING -  * Debugger is active!
+2025-08-07 13:07:59,858 - werkzeug - INFO -  * Debugger PIN: 123-991-829
+2025-08-07 13:07:59,905 - werkzeug - INFO - 127.0.0.1 - - [07/Aug/2025 13:07:59] "GET / HTTP/1.1" 200 -
+2025-08-07 13:07:59,933 - werkzeug - INFO - 127.0.0.1 - - [07/Aug/2025 13:07:59] "GET /static/css/style.css HTTP/1.1" 200 -
+2025-08-07 13:07:59,933 - werkzeug - INFO - 127.0.0.1 - - [07/Aug/2025 13:07:59] "GET /static/js/script.js HTTP/1.1" 200 -
+2025-08-07 13:08:00,093 - werkzeug - INFO - 127.0.0.1 - - [07/Aug/2025 13:08:00] "GET /health HTTP/1.1" 200 -
+2025-08-07 13:08:00,939 - werkzeug - INFO - 127.0.0.1 - - [07/Aug/2025 13:08:00] "GET / HTTP/1.1" 200 -
+2025-08-07 13:08:00,961 - werkzeug - INFO - 127.0.0.1 - - [07/Aug/2025 13:08:00] "[36mGET /static/css/style.css HTTP/1.1[0m" 304 -
+2025-08-07 13:08:00,964 - werkzeug - INFO - 127.0.0.1 - - [07/Aug/2025 13:08:00] "GET /static/js/script.js HTTP/1.1" 200 -
+2025-08-07 13:08:00,974 - werkzeug - INFO - 127.0.0.1 - - [07/Aug/2025 13:08:00] "GET /health HTTP/1.1" 200 -
+2025-08-07 13:08:01,042 - werkzeug - INFO - 127.0.0.1 - - [07/Aug/2025 13:08:01] "[36mGET /static/icon.png HTTP/1.1[0m" 304 -
+2025-08-07 13:08:01,045 - werkzeug - INFO - 127.0.0.1 - - [07/Aug/2025 13:08:01] "[36mGET /static/icon.png HTTP/1.1[0m" 304 -
+2025-08-07 13:08:10,236 - agents.mcp_coordinator - INFO - Starting document processing workflow: b0139c1f-5d8b-42ee-8c68-d39ad835516b for uploads/Store_Inventory_Analysis_Corrected.csv
+2025-08-07 13:08:10,236 - utils.mcp - WARNING - No handlers registered for message type: WORKFLOW_START to IngestionAgent
+2025-08-07 13:08:10,236 - utils.mcp - WARNING - No handlers registered for message type: WORKFLOW_START to LLMResponseAgent
+2025-08-07 13:08:10,236 - agents.mcp_ingestion_agent - INFO - Processing document: uploads/Store_Inventory_Analysis_Corrected.csv
+2025-08-07 13:08:10,276 - utils.document_parser - INFO - Parsed uploads/Store_Inventory_Analysis_Corrected.csv: 6 raw chunks -> 1 processed chunks
+2025-08-07 13:08:10,276 - agents.mcp_ingestion_agent - INFO - Successfully processed uploads/Store_Inventory_Analysis_Corrected.csv: 1 chunks extracted
+2025-08-07 13:08:10,459 - utils.vector_store - INFO - Successfully added 1 chunks to vector store
+2025-08-07 13:08:10,459 - agents.mcp_retrieval_agent - INFO - Successfully indexed 1 chunks from uploads/Store_Inventory_Analysis_Corrected.csv
+2025-08-07 13:08:10,460 - agents.mcp_coordinator - WARNING - Received documents indexed message without valid workflow: None
+2025-08-07 13:08:10,460 - werkzeug - INFO - 127.0.0.1 - - [07/Aug/2025 13:08:10] "POST /upload HTTP/1.1" 200 -
+2025-08-07 13:08:17,534 - agents.mcp_coordinator - INFO - Starting query processing workflow: 3827388b-ed3a-4d7c-bca2-cb11d4232f0a for query: a short summery...
+2025-08-07 13:08:17,535 - utils.mcp - WARNING - No handlers registered for message type: WORKFLOW_START to IngestionAgent
+2025-08-07 13:08:17,535 - utils.mcp - WARNING - No handlers registered for message type: WORKFLOW_START to LLMResponseAgent
+2025-08-07 13:08:17,569 - utils.vector_store - INFO - Found 2 results for query: a short summery...
+2025-08-07 13:08:17,569 - agents.mcp_retrieval_agent - INFO - Retrieved 2 chunks for query: a short summery...
+2025-08-07 13:08:17,569 - agents.mcp_llm_agent - INFO - Generating response for query: a short summery... with 2 chunks
+2025-08-07 13:08:22,050 - agents.mcp_llm_agent - INFO - Generated rag response in 4.48s
+2025-08-07 13:08:22,050 - agents.mcp_coordinator - WARNING - Received response generated message without valid workflow: None
+2025-08-07 13:08:22,074 - utils.vector_store - INFO - Found 2 results for query: a short summery...
+2025-08-07 13:08:22,074 - agents.mcp_retrieval_agent - INFO - Retrieved 2 chunks for query: a short summery...
+2025-08-07 13:08:26,386 - werkzeug - INFO - 127.0.0.1 - - [07/Aug/2025 13:08:26] "POST /query HTTP/1.1" 200 -
